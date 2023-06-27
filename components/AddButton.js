@@ -1,18 +1,26 @@
-export default function AddButton({ $target, onclick }) {
-    const $addButton = document.createElement("button");
+import { request } from "../utils/api.js";
 
-    $target.appendChild($addButton);
+export default function AddButton({ $target, onClick }) {
+  const $addButton = document.createElement("button");
+  $addButton.textContent = "+ 페이지 추가";
+  $addButton.className = "addList";
 
-    this.render = () => {
-        $addButton.innerHTML = `
-            <button class="addList">+ 페이지 추가</button>
-        `;
-    }
+  $target.appendChild($addButton);
 
-    this.render();
-
-    $addButton.addEventListener("click", () => {
-        const $ul = document.getElementsByClassName("notion-list");
-        onclick($ul);
+  $addButton.addEventListener("click", () => {
+    const $ul = document.getElementsByClassName("notion-list")[0];
+    const fetchCreateData = async () => {
+      return await request("/", {
+        method: "POST",
+        body: {
+          title: "제목없음",
+          parent: null,
+        },
+      });
+    };
+    onClick({
+      $ul,
+      fetchCreateData,
     });
+  });
 }
