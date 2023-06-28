@@ -1,5 +1,6 @@
 export default function Editor({ $target, initialState }) {
     const $editor = document.createElement("div");
+    $editor.contentEditable = "true";
     $target.appendChild($editor);
 
     this.state = initialState;
@@ -10,9 +11,6 @@ export default function Editor({ $target, initialState }) {
     }
 
     this.render = () => {
-        $editor.innerHTML = `
-            <div contenteditable="true"></div>
-        `
     }
 
     this.render();

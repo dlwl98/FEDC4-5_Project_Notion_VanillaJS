@@ -6,6 +6,9 @@ export default function App({ $target }) {
   const $notionListContainer = document.createElement("div");
   const $editorContainer = document.createElement("div");
 
+  $notionListContainer.className = "notionListContainer";
+  $editorContainer.className = "editorContainer";
+
   $target.appendChild($notionListContainer);
   $target.appendChild($editorContainer);
 

@@ -1,8 +1,8 @@
+import { request } from "../utils/api.js";
 import AddButton from "./AddButton.js";
 
 export default function NotionList({ $target, initialState, onSelect }) {
   const $notionList = document.createElement("div");
-  const addListContainer = document.createElement("div");
   $notionList.className = "notionList";
   $target.appendChild($notionList);
 
@@ -15,42 +15,58 @@ export default function NotionList({ $target, initialState, onSelect }) {
 
   this.render = () => {
     const { notionLists } = this.state;
+    
+    if (notionLists) {
+      $notionList.innerHTML = `
+      <ul class="notion-list">
+        ${notionLists.map(({id, title, document}) => 
+          `<li data-id="${id}">
+            ${title}
+            <button>+</button>
+          </li>`
+        ).join("")}
+      </ul>
+    `;
+    }
+  }
 
-    const showList = (data) => {
-      if (data.documents.length > 0) {
-        return `
-                    <ul data-id="${data._id}">
-                        ${showList(data.documents)}   
-                    </ul>
-                `;
-      } else {
-        return `
-                    <li data-id="${data._id}" class="notion-item">
-                        ${data.title}
-                        <button class="add">+</button>
-                    </li>
-                `;
-      }
-    };
+    // const showList = (data) => {
+    //   if (data.documents.length > 0) {
+    //     return `
+    //                 <ul data-id="${data._id}">
+    //                     ${showList(data.documents)}   
+    //                 </ul>
+    //             `;
+    //   } else {
+    //     return `
+    //                 <li data-id="${data._id}" class="notion-item">
+    //                     ${data.title}
+    //                     <button class="add">+</button>
+    //                 </li>
+    //             `;
+    //   }
+    // };
 
-    $notionList.innerHTML = `
-            <h3>Notion_List</h3>
-            <ul class="notion-list">
-            </ul>
-        `;
-    // 버튼 추가시 api로 서버에 페이지 등록 해야해
+    
+    
     new AddButton({
-      $target: $notionList,
-      onClick: ($ul, fetchCreateData) => {
+      $target,
+      onClick: async ({$ul, createDataTitle, parent}) => {
         const $li = document.createElement("li");
         const $button = document.createElement("button");
-        $li.textContent = fetchCreateData.title;
+
+        const createData = await request("/", {
+          method: "POST",
+          body: JSON.stringify({
+            title: createDataTitle,
+            parent: parent,
+          }),
+        });
+        $li.textContent = createData.title;
         $button.textContent = "+";
         $li.appendChild($button);
         $ul.appendChild($li);
       },
     });
-  };
-
-  this.render();
+    this.render();
 }
