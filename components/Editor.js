@@ -1,17 +1,50 @@
-export default function Editor({ $target, initialState }) {
-    const $editor = document.createElement("div");
-    $editor.contentEditable = "true";
-    $target.appendChild($editor);
+export default function Editor({
+  $target,
+  initialState = {
+    title: "",
+    content: "",
+  },
+  onEditing,
+}) {
+  const $editor = document.createElement("div");
 
-    this.state = initialState;
+  let isInitialize = false;
+  $target.appendChild($editor);
 
-    this.setState = (nextState) => {
-        this.state = nextState;
-        this.render();
-    }
+  this.state = initialState;
 
-    this.render = () => {
-    }
-
+  this.setState = (nextState) => {
+    this.state = nextState;
+    $editor.querySelector("[name=title]").value = this.state.title;
+    $editor.querySelector("[name=content]").value = this.state.content;
     this.render();
+  };
+
+  this.render = () => {
+    if (!isInitialize) {
+      $editor.innerHTML = `
+            <input type="text" name="title" value="${this.state.title}"/>
+            <div contentEditable="true" name="content">${this.state.content}</div>
+        `;
+      isInitialize = true;
+    }
+  };
+
+  this.render();
+
+  $editor.addEventListener("keyup", (e) => {
+    const { target } = e;
+
+    const name = target.getAttribute("name");
+
+    if (this.state[name] !== undefined) {
+      const nextState = {
+        ...this.state,
+        [name]: target.value,
+      };
+
+      this.setState(nextState);
+      onEditing(this.state);
+    }
+  });
 }

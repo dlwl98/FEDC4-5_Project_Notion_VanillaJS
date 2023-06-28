@@ -1,54 +1,22 @@
 import { request } from "../utils/api.js";
+import { setItem } from "../utils/storage.js";
 import Editor from "./Editor.js";
-import NotionList from "./NotionList.js";
+import NotionEditPage from "./NotionEditPage.js";
+import NotionPage from "./NotionPage.js";
 
 export default function App({ $target }) {
-  const $notionListContainer = document.createElement("div");
-  const $editorContainer = document.createElement("div");
+  const notionPage = new NotionPage({ $target });
 
-  $notionListContainer.className = "notionListContainer";
-  $editorContainer.className = "editorContainer";
+  notionPage.render();
 
-  $target.appendChild($notionListContainer);
-  $target.appendChild($editorContainer);
-
-  this.state = {
-    notionLists: [],
-    selectedNotion: null,
-    editorContent: "",
-  };
-
-  this.setState = (nextState) => {
-    this.state = nextState;
-    notionList.setState({
-      notionLists: this.state.notionLists,
-    });
-    this.render();
-  };
-
-  const editor = new Editor({
-    $target: $editorContainer,
+  const notionEditPage = new NotionEditPage({
+    $target,
     initialState: {
-      content: "",
-    },
-  });
-  const notionList = new NotionList({
-    $target: $notionListContainer,
-    initialState: [],
-    onSelect: () => {
-      // show the editor
+      notionId: "new",
     },
   });
 
-  this.render = () => {};
-
-  const fetchNotionList = async () => {
-    const notionListData = await request("/");
-    this.setState({
-      ...this.state,
-      notionLists: notionListData,
-    });
-  };
-
-  fetchNotionList();
+  notionEditPage.setState({
+    notionId: 1,
+  });
 }

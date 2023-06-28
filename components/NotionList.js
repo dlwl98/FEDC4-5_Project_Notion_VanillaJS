@@ -1,4 +1,3 @@
-import { request } from "../utils/api.js";
 import AddButton from "./AddButton.js";
 
 export default function NotionList({ $target, initialState, onSelect }) {
@@ -13,60 +12,36 @@ export default function NotionList({ $target, initialState, onSelect }) {
     this.render();
   };
 
+  const $newNotionButton = document.createElement("button");
+  $newNotionButton.textContent = "+ 페이지 추가";
+  $target.appendChild($newNotionButton);
+
   this.render = () => {
-    const { notionLists } = this.state;
-    
-    if (notionLists) {
-      $notionList.innerHTML = `
-      <ul class="notion-list">
-        ${notionLists.map(({id, title, document}) => 
-          `<li data-id="${id}">
-            ${title}
-            <button>+</button>
-          </li>`
-        ).join("")}
-      </ul>
-    `;
-    }
-  }
+    $notionList.innerHTML = `
+            <h3>Notion_List</h3>
+            <ul class="notion-list">
+              ${this.state
+                .map(
+                  (notion) => `
+                <li data-id="${notion.id}">${notion.title}</li>
+              `
+                )
+                .join("")}
+            </ul>
+        `;
+    // 버튼 추가시 api로 서버에 페이지 등록 해야해
+    // new AddButton({
+    //   $target: $notionList,
+    //   onClick: ($ul, fetchCreateData) => {
+    //     const $li = document.createElement("li");
+    //     const $button = document.createElement("button");
+    //     $li.textContent = fetchCreateData.title;
+    //     $button.textContent = "+";
+    //     $li.appendChild($button);
+    //     $ul.appendChild($li);
+    //   },
+    // });
+  };
 
-    // const showList = (data) => {
-    //   if (data.documents.length > 0) {
-    //     return `
-    //                 <ul data-id="${data._id}">
-    //                     ${showList(data.documents)}   
-    //                 </ul>
-    //             `;
-    //   } else {
-    //     return `
-    //                 <li data-id="${data._id}" class="notion-item">
-    //                     ${data.title}
-    //                     <button class="add">+</button>
-    //                 </li>
-    //             `;
-    //   }
-    // };
-
-    
-    
-    new AddButton({
-      $target,
-      onClick: async ({$ul, createDataTitle, parent}) => {
-        const $li = document.createElement("li");
-        const $button = document.createElement("button");
-
-        const createData = await request("/", {
-          method: "POST",
-          body: JSON.stringify({
-            title: createDataTitle,
-            parent: parent,
-          }),
-        });
-        $li.textContent = createData.title;
-        $button.textContent = "+";
-        $li.appendChild($button);
-        $ul.appendChild($li);
-      },
-    });
-    this.render();
+  this.render();
 }

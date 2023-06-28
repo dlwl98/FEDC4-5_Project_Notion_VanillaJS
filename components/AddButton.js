@@ -7,12 +7,20 @@ export default function AddButton({ $target, onClick }) {
 
   $target.appendChild($addButton);
 
-  $addButton.addEventListener("click", async () => {
+  $addButton.addEventListener("click", () => {
     const $ul = document.getElementsByClassName("notion-list")[0];
-    await onClick({
+    const fetchCreateData = async () => {
+      return await request("/", {
+        method: "POST",
+        body: {
+          title: "제목없음",
+          parent: null,
+        },
+      });
+    };
+    onClick({
       $ul,
-      createDataTitle: "제목없음",
-      parent: null,
+      fetchCreateData,
     });
   });
 }
