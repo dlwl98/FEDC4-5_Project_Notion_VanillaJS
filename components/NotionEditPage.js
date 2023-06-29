@@ -1,15 +1,33 @@
-import { request } from "../utils/api.js";
-import { getItem, setItem } from "../utils/storage.js";
 import Editor from "./Editor.js";
+import { getItem, setItem } from "../utils/storage.js";
+import { request } from "../utils/api.js";
 
 export default function NotionEditPage({ $target, initialState }) {
   const $page = document.createElement("div");
+  $page.className = "notionEditPage";
 
   this.state = initialState;
 
-  const NOTION_SAVE_KEY = `notion-${this.state.notionId}`;
+  this.setState = async (nextState) => {
+    if (this.state.notionId !== nextState.notionId) {
+      notionLocalSaveKey = `tmp-notion-${nextState.notionId}`;
+      this.state = nextState;
+      await fetchNotion();
+      return;
+    }
+    this.state = nextState;
+    this.render();
+    editor.setState(
+      this.state.notion || {
+        title: "제목없음",
+        content: "",
+      }
+    );
+  };
 
-  const notion = getItem(NOTION_SAVE_KEY, {
+  let notionLocalSaveKey = `tmp-notion-${this.state.notionId}`;
+
+  const notion = getItem(notionLocalSaveKey, {
     title: "제목없음",
     content: "",
   });
@@ -23,26 +41,14 @@ export default function NotionEditPage({ $target, initialState }) {
       if (timer !== null) {
         clearTimeout(timer);
       }
-      timer = setTimeout(() => {
-        setItem(NOTION_SAVE_KEY, {
-          ...notion,
-          saveDate: new Date(),
+      timer = setTimeout(async () => {
+        await request(`/documents/${this.state.notionId}`, {
+          method: "PUT",
+          body: {},
         });
       }, 2000);
     },
   });
-
-  this.setState = async (nextState) => {
-    if (this.state.notionId !== nextState.notionId) {
-      this.state = nextState;
-      await fetchNotion();
-      return;
-    }
-    this.state = nextState;
-    this.render();
-
-    editor.setState(this.state.notion);
-  };
 
   this.render = () => {
     $target.appendChild($page);
@@ -50,8 +56,9 @@ export default function NotionEditPage({ $target, initialState }) {
 
   const fetchNotion = async () => {
     const { notionId } = this.state;
+
     if (notionId !== "new") {
-      const notion = await request(`/${notionId}`);
+      const notion = await request(`/documents/${notionId}`);
 
       this.setState({
         ...this.state,

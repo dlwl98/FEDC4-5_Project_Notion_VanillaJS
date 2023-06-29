@@ -1,22 +1,46 @@
-import { request } from "../utils/api.js";
-import { setItem } from "../utils/storage.js";
-import Editor from "./Editor.js";
+import { initRouter } from "../utils/router.js";
 import NotionEditPage from "./NotionEditPage.js";
 import NotionPage from "./NotionPage.js";
 
 export default function App({ $target }) {
-  const notionPage = new NotionPage({ $target });
+  const $notionPageContainer = document.createElement("div");
+  const $notionEditPageContainer = document.createElement("div");
+  $notionPageContainer.className = "notionPageContainer";
+  $notionEditPageContainer.className = "notionEditPageContainer";
 
-  notionPage.render();
+  $target.appendChild($notionPageContainer);
+  $target.appendChild($notionEditPageContainer);
 
-  const notionEditPage = new NotionEditPage({
-    $target,
+  const notionPage = new NotionPage({
+    $target: $notionPageContainer,
+    initialState: [],
+  });
+
+  const editorPage = new NotionEditPage({
+    $target: $notionEditPageContainer,
     initialState: {
       notionId: "new",
+      notion: {
+        title: "제목없음",
+        content: "",
+      },
     },
   });
 
-  notionEditPage.setState({
-    notionId: 1,
-  });
+  this.route = () => {
+    const { pathname } = window.location;
+
+    console.log(pathname);
+
+    if (pathname === "/") {
+      notionPage.render();
+    } else if (pathname.indexOf("/documents/") === 0) {
+      const [, , notionId] = pathname.split("/");
+      console.log(notionId);
+      editorPage.setState({ notionId });
+    }
+  };
+
+  this.route();
+  initRouter(() => this.route());
 }
