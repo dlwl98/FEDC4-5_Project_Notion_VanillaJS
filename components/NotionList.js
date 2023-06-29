@@ -1,8 +1,15 @@
-import AddButton from "./AddButton.js";
+import { request } from "../utils/api.js";
 
-export default function NotionList({ $target, initialState, onSelect }) {
+export default function NotionList({
+  $target,
+  initialState,
+  onClick,
+  onAdd,
+  onDelete,
+}) {
   const $notionList = document.createElement("div");
   $notionList.className = "notionList";
+
   $target.appendChild($notionList);
 
   this.state = initialState;
@@ -12,36 +19,32 @@ export default function NotionList({ $target, initialState, onSelect }) {
     this.render();
   };
 
-  const $newNotionButton = document.createElement("button");
-  $newNotionButton.textContent = "+ 페이지 추가";
-  $target.appendChild($newNotionButton);
-
   this.render = () => {
     $notionList.innerHTML = `
-            <h3>Notion_List</h3>
-            <ul class="notion-list">
-              ${this.state
-                .map(
-                  (notion) => `
-                <li data-id="${notion.id}">${notion.title}</li>
-              `
-                )
-                .join("")}
-            </ul>
-        `;
-    // 버튼 추가시 api로 서버에 페이지 등록 해야해
-    // new AddButton({
-    //   $target: $notionList,
-    //   onClick: ($ul, fetchCreateData) => {
-    //     const $li = document.createElement("li");
-    //     const $button = document.createElement("button");
-    //     $li.textContent = fetchCreateData.title;
-    //     $button.textContent = "+";
-    //     $li.appendChild($button);
-    //     $ul.appendChild($li);
-    //   },
-    // });
+      <ul class="notions">
+        ${this.state
+          .map(
+            ({ id, title, document }) => `
+          <li class="list" data-id="${id}">
+            ${title}
+            <button class="btn" data-id="${id}">x</button>
+          </li>
+          
+        `
+          )
+          .join("")}
+      </ul>
+    `;
   };
 
   this.render();
+
+  $notionList.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    if (e.target.className === "list") {
+      onClick(id);
+    } else {
+      onDelete(id);
+    }
+  });
 }

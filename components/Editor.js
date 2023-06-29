@@ -1,31 +1,26 @@
-export default function Editor({
-  $target,
-  initialState = {
-    title: "",
-    content: "",
-  },
-  onEditing,
-}) {
+export default function Editor({ $target, initialState, onEditing }) {
   const $editor = document.createElement("div");
+  $editor.className = "editor";
 
-  let isInitialize = false;
   $target.appendChild($editor);
 
   this.state = initialState;
 
+  let isInitialize = false;
+
   this.setState = (nextState) => {
     this.state = nextState;
     $editor.querySelector("[name=title]").value = this.state.title;
-    $editor.querySelector("[name=content]").value = this.state.content;
+    $editor.querySelector("[name=content]").innerHTML = this.state.content;
     this.render();
   };
 
   this.render = () => {
     if (!isInitialize) {
       $editor.innerHTML = `
-            <input type="text" name="title" value="${this.state.title}"/>
-            <div contentEditable="true" name="content">${this.state.content}</div>
-        `;
+      <input type="text" name="title" value="${this.state.title}" />
+      <div class="content" contentEditable="true" name="content">${this.state.content}</div>
+    `;
       isInitialize = true;
     }
   };
@@ -42,9 +37,8 @@ export default function Editor({
         ...this.state,
         [name]: target.value,
       };
-
       this.setState(nextState);
-      onEditing(this.state);
     }
+    onEditing(this.state);
   });
 }
