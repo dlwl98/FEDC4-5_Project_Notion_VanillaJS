@@ -28,7 +28,10 @@ export default function App({ $target }) {
 
   const editorPage = new NotionEditPage({
     $target: $notionEditPageContainer,
-    initialState: null,
+    initialState: "new",
+    onRender: () => {
+      notionPage.render();
+    },
     // {
     //   title: "나영팀은 왜 이지경이 되었을까?",
     //   content: "내가 문제인가? 애들이 문제인가? 그것이 문제로다",
@@ -67,7 +70,8 @@ export default function App({ $target }) {
         parent: null,
       }),
     });
-    history.replaceState(null, null, `/documents/${createdNotion.id}`);
+    history.pushState(null, null, `/documents/${createdNotion.id}`);
+    this.route();
     notionPage.render();
   };
 

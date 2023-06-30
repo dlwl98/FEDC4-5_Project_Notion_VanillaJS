@@ -1,8 +1,7 @@
 import Editor from "./Editor.js";
-import { getItem } from "../utils/storage.js";
 import { request } from "../utils/api.js";
 
-export default function NotionEditPage({ $target, initialState }) {
+export default function NotionEditPage({ $target, initialState, onRender }) {
   const $page = document.createElement("div");
   $page.className = "notionEditPage";
 
@@ -11,8 +10,9 @@ export default function NotionEditPage({ $target, initialState }) {
   this.state = initialState;
 
   this.setState = async (nextState) => {
+    const previousState = this.state;
     this.state = nextState;
-    if (this.state.notionId !== nextState.notionId) {
+    if (previousState.notionId !== nextState.notionId) {
       await fetchNotion();
       return;
     }
@@ -40,10 +40,12 @@ export default function NotionEditPage({ $target, initialState }) {
         clearTimeout(timer);
       }
       timer = setTimeout(async () => {
-        await request(`/documents/${this.state.id}`, {
+        console.log(notion);
+        await request(`/documents/${this.state.notionId}`, {
           method: "PUT",
           body: JSON.stringify(notion),
         });
+        onRender();
       }, 2000);
     },
   });
@@ -57,13 +59,10 @@ export default function NotionEditPage({ $target, initialState }) {
 
     if (notionId !== "new") {
       const notion = await request(`/documents/${notionId}`);
-
       this.setState({
         ...this.state,
         notion,
       });
     }
   };
-
-  this.render();
 }

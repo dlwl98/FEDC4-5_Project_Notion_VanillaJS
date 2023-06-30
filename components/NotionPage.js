@@ -24,6 +24,7 @@ export default function NotionPage({ $target, initialState, onClick }) {
       await request(`/documents/${id}`, {
         method: "DELETE",
       });
+      // previous history로 넘어가기
       this.render();
     },
   });
