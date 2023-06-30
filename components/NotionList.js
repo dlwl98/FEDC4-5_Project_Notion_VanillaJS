@@ -4,7 +4,7 @@ export default function NotionList({
   $target,
   initialState,
   onClick,
-  onAdd,
+  // onAdd,
   onDelete,
 }) {
   const $notionList = document.createElement("div");

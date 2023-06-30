@@ -2,16 +2,11 @@ import NotionList from "./NotionList.js";
 import { request } from "../utils/api.js";
 import { push } from "../utils/router.js";
 
-export default function NotionPage({ $target, initialState }) {
+export default function NotionPage({ $target, initialState, onClick }) {
   const $page = document.createElement("div");
   $page.className = "notionPage";
 
-  const $addNewRootNotion = document.createElement("button");
-  $addNewRootNotion.className = "addNewRootNotion";
-  $addNewRootNotion.textContent = "+ 페이지 추가";
-
   $target.appendChild($page);
-  $page.appendChild($addNewRootNotion);
 
   this.state = initialState;
 
@@ -22,11 +17,9 @@ export default function NotionPage({ $target, initialState }) {
 
   const notionList = new NotionList({
     $target: $page,
-    initialState,
-    onClick: (id) => {
-      push(`/documents/${id}`);
-    },
-    onAdd: () => {},
+    initialState: this.state,
+    onClick,
+    // onAdd: () => {},
     onDelete: async (id) => {
       await request(`/documents/${id}`, {
         method: "DELETE",
@@ -44,20 +37,5 @@ export default function NotionPage({ $target, initialState }) {
     notionList.setState(storedNotions);
   };
 
-  const fetchAddNotion = async () => {
-    await request("/documents", {
-      method: "POST",
-      body: JSON.stringify({
-        title: "제목없음",
-        parent: null,
-      }),
-    });
-    this.render();
-  };
-
   this.render();
-
-  $addNewRootNotion.addEventListener("click", () => {
-    fetchAddNotion();
-  });
 }
